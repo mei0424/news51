@@ -79,7 +79,73 @@ const showDetail = (req,res) => {
 
 }
 
+// 渲染话题编辑页
+const showEdit = (req,res) => {
+    // 1 获取到topicID
+    const topicID = req.params.topicID;
+    // console.log(topicID);
+    // 2 需要将对应的话题渲染回客户端
+    // 在模块页面查询MySQL数据库，将获得的数据渲染到页面
+    m_topic.findTopicByID(topicID,(err,data) => {
+        if(err) {
+            return res.send({
+                code:500,
+                message:'服务器错误'
+            })
+        }
+        res.render('topic/edit.html',{
+            topic:data[0],
+            user:req.session.user
+        });
+    })
+}
+
+// 处理编辑页表单提交
+const handelEditForm = (req,res) => {
+    // 1 获取表单内容和话题id
+    const body = req.body;
+    const topicID = req.params.topicID;
+    // console.log(body);//{ title: '第十一篇文章', content: '第十一测试篇文章（2）' }
+    // 2 在模块中修改数据库数据
+    m_topic.updateTopicById(body,topicID,(err,data) => {
+        if(err) {
+            return res.send({
+                code: 500,
+                message: err.message
+            })
+        }
+        res.send({
+            code: 200,
+            message: '修改成功'
+        })
+    });
+}
+
+// 删除话题功能
+const deleteTopic = (req,res) => {
+    // 1 获取话题id值
+    const topicID = req.params.topicID;
+    // 2 根据id值删除话题
+    m_topic.deleteTopicById(topicID,(err,data) => {
+        if(err) {
+            return res.send({
+                code: 500,
+                message: err.message
+            })
+        }
+        res.send({
+            code: 200,
+            message: '删除成功'
+        })
+
+
+    });
+}
+
 module.exports.showTopic = showTopic;
 module.exports.creatTopic = creatTopic;
 module.exports.handelCreatTopic = handelCreatTopic;
 module.exports.showDetail = showDetail;
+module.exports.showEdit = showEdit;
+module.exports.handelEditForm = handelEditForm;
+module.exports.deleteTopic = deleteTopic;

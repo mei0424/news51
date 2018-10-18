@@ -47,7 +47,70 @@ const handleSignout = (req,res) => {
     // 跳转到登录页
     res.redirect('/signin');
 }
+
+// 展示注册页面
+const showSignUp = (req,res) => {
+    res.render('signup.html');
+}
+// 处理注册页面表单
+const handelSignUp = (req,res) => {
+    // 1 获取到表单数据
+    const body = req.body;
+    // 2 验证邮箱是否存在
+        // 之前再登录页的时候，在模板中已经验证过邮箱，直接调用即可
+    m_user.checkEmail(body.email,(err,data) => {
+        if(err) {
+            return res.send({
+                code: 500,
+                message:err.message
+            })
+        }
+        // 我们获取到的数据有两种情况：1 空数组 2 数组内有一条数据
+        // 如果有数据，说明邮箱已存在，
+        if(data[0]){
+            return res.send({
+                code:0,
+                message:'邮箱已存在，换一个'
+            })
+        }
+        // 代码走到这，说明邮箱不存在，可以使用
+        // 3 邮箱不存在，再验证昵称是否存在
+        // 在模块文件中查找该昵称
+        m_user.checkNickname(body.nickname,(err,data) => {
+            if(err){
+                return res.send({
+                    code:500,
+                    message:err.message
+                })
+            }
+            if(data[0]){
+                return res.send({
+                    code:1,
+                    message: '昵称已存在，再想一个'
+                })
+            }
+            // 4 邮箱昵称都不存在，则执行添加sql语句，将数据添加到数据库中
+            m_user.addNewUser(body,(err,data) => {
+                if(err) {
+                    return res.send({
+                        code:500,
+                        message: err.message
+                    })
+                }
+                // 表示添加成功
+                res.send({
+                    code:200,
+                    message: '注册成功'
+                })
+            });
+        })
+        
+    })
+    
+}
 // 导出
 exports.showSignin = showSignin;
 exports.handleSignin = handleSignin;
 exports.handleSignout = handleSignout;
+exports.showSignUp = showSignUp;
+exports.handelSignUp = handelSignUp;

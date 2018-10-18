@@ -14,4 +14,28 @@ const checkEmail = function(email,callback){
         callback(null,results);
     })
 };
+// 2 验证昵称
+const checkNickname = (nickname,callback) => {
+    const sql = 'select * from users where nickname = ?';
+    connection.query(sql,nickname,(err,data) => {
+        if(err) {
+            return callback(err);
+        }
+        callback(null,data);
+    })
+}
+
+// 添加新用户
+const addNewUser = (body,callback) => {
+    const sql = 'insert into users set ?';
+    connection.query(sql,body,(err,data) => {
+        if(err) {
+            return callback(err);
+        }
+        callback(null,data);
+    })
+}
+
 exports.checkEmail = checkEmail;
+exports.checkNickname = checkNickname;
+exports.addNewUser = addNewUser;
